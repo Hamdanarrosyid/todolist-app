@@ -73,7 +73,7 @@ export default function Home() {
 
       <div className="flex items-center py-4 justify-between">
         <Input
-          placeholder="Filter emails..."
+          placeholder="Filter firstname..."
           value={firstname}
           onChange={(event) => setFirstname(event.target.value)}
           className="max-w-sm"
