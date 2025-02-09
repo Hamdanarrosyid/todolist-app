@@ -40,7 +40,7 @@ export default function DetailUser() {
     }
 
     return (
-        <div className="container mx-auto h-screen">
+        <div className="container mx-auto h-screen px-[20px]">
             <div className="grid grid-cols-12 pt-20 gap-4">
                 <div className="lg:col-span-3 col-span-12">
                     <Card className="rounded-none">
