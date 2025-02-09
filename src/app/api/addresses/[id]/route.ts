@@ -4,9 +4,9 @@ import { addresses} from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { CreateAddressValidation } from "@/validation/createAddressValidation";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const result = await db.select().from(addresses).where(eq(addresses.id, params.id));
+    const result = await db.select().from(addresses).where(eq(addresses.id, (await params).id));
 
     if (!result.length) {
       return NextResponse.json({ error: "Address tidak ditemukan" }, { status: 404 });
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const body = await req.json();
     const validation = CreateAddressValidation.safeParse(body);
@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: validation.error.errors }, { status: 400 });
     }
 
-    const updated = await db.update(addresses).set(body).where(eq(addresses.id, params.id)).returning();
+    const updated = await db.update(addresses).set(body).where(eq(addresses.id, (await params).id)).returning();
 
     if (!updated.length) {
       return NextResponse.json({ error: "Address tidak ditemukan" }, { status: 404 });
@@ -41,9 +41,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const deleted = await db.delete(addresses).where(eq(addresses.id, params.id)).returning();
+    const deleted = await db.delete(addresses).where(eq(addresses.id, (await params).id)).returning();
 
     if (!deleted.length) {
       return NextResponse.json({ error: "Address tidak ditemukan" }, { status: 404 });

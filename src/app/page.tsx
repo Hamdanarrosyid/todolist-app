@@ -49,6 +49,7 @@ export default function Home() {
   useEffect(() => {
     debouncedSearch(firstname)
     return () => debouncedSearch.cancel()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firstname])
 
   const { isPending, error, data } = useQuery<ResponseWrapper<User[]>>({

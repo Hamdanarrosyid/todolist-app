@@ -5,9 +5,9 @@ import { eq } from "drizzle-orm";
 import { CreateTodoValidation } from "@/validation/createTodovalidation";
 
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
 
     const todo = await db.select().from(todos).where(eq(todos.id, id)).limit(1);
     if (!todo.length) return NextResponse.json({ error: "Todo tidak ditemukan" }, { status: 404 });
@@ -20,9 +20,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 // UPDATE TODO
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
     const body = await req.json();
     const validatedData = CreateTodoValidation.safeParse(body);
 
@@ -41,9 +41,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 // DELETE TODO
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
 
     const deleted = await db.delete(todos).where(eq(todos.id, id)).returning();
     if (!deleted.length) return NextResponse.json({ error: "Todo tidak ditemukan" }, { status: 404 });

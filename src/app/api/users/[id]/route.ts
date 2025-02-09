@@ -7,15 +7,15 @@ import { z } from "zod";
 
 const IdSchema = z.string().uuid();
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const validatedId = IdSchema.safeParse(params.id);
+        const validatedId = IdSchema.safeParse((await params).id);
         if (!validatedId.success) {
             return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
         }
 
         const user = await db.query.users.findFirst({
-            where: eq(users.id, params.id), with: {
+            where: eq(users.id, (await params).id), with: {
                 address: true,
             }
         });
@@ -30,9 +30,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const validatedId = IdSchema.safeParse(params.id);
+        const validatedId = IdSchema.safeParse((await params).id);
         if (!validatedId.success) {
             return NextResponse.json({ error: "ID tidak valid" }, { status: 400 });
         }
@@ -43,7 +43,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             return NextResponse.json({ error: validatedData.error.errors }, { status: 400 });
         }
 
-        await db.update(users).set(validatedData.data).where(eq(users.id, params.id));
+        await db.update(users).set(validatedData.data).where(eq(users.id, (await params).id));
 
         return NextResponse.json({ message: "User berhasil diperbarui" }, { status: 200 });
     } catch (error) {
@@ -52,9 +52,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
 
     const deleted = await db.delete(users).where(eq(users.id, id)).returning();
     if (!deleted.length) return NextResponse.json({ error: "Todo tidak ditemukan" }, { status: 404 });
